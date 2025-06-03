@@ -52,4 +52,34 @@ router.get("/:id", async (request, response) => {
   }
 });
 
+router.post("/commentsOfPhoto/:photo_id", async (request, response) => {
+  try {
+    const photoID = request.params.photo_id; // đúng cú pháp
+    const { comment } = request.body;
+
+    const photo = await Photo.findById(photoID);
+
+    if (!photo) {
+      return response.status(404).json({ message: "Photo not found" });
+    }
+
+    const newComment = {
+      comment: comment,
+      user_id: photo.user_id, // bạn có thể thay bằng req.session.user_id nếu có đăng nhập
+      date_time: new Date(),
+    };
+
+    photo.comments.push(newComment);
+    await photo.save(); // <-- rất quan trọng
+
+    console.log("Added comment:", newComment);
+
+    response.status(200).json({ message: "Comment added successfully" });
+  } catch (error) {
+    console.error("Error adding comment:", error);
+    response.status(500).json({ message: "Internal server error" });
+  }
+});
+
+
 module.exports = router;

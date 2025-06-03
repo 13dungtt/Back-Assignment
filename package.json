@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.html",
   "scripts": {
-    "start": "nodemon index.js"
+    "start": "nodemon --inspect index.js"
   },
   "repository": {
     "type": "git",
@@ -24,6 +24,7 @@
     "cors": "2.8.5",
     "dotenv": "16.4.5",
     "express": "4.19.2",
+    "express-session": "^1.18.1",
     "mongoose": "8.3.3"
   }
 }

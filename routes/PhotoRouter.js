@@ -89,4 +89,42 @@ router.get("/photosOfUser/:id", async (request, response) => {
   }
 });
 
+
+router.get("/:id", async (request, response) => {
+  try {
+    const photoId = request.params.id;
+    console.log("Fetching user with ID:", photoId);
+
+    if (!mongoose.Types.ObjectId.isValid(photoId)) {
+      console.log("Invalid photo ID");
+      return response.status(400).json({ message: "Invalid photo ID" });
+    }
+    
+   const photo = await Photo.findById(photoId)
+  .select({
+    _id: 1,
+    file_name: 1,
+    date_time: 1,
+    user_id: 1,
+    comments: 1,
+  })
+  .populate({
+    path: "comments.user_id", // <-- phải là user_id
+    select: "first_name last_name",
+  })
+  .exec();
+
+    if (!photo) {
+      console.log("Photo not found");
+      return response.status(404).json({ message: "User not found" });
+    }
+
+    response.json(photo);
+  } catch (error) {
+    console.error("Error fetching photo:", error.stack || error);
+    response
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
+  }
+});
 module.exports = router;

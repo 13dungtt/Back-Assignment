@@ -2,6 +2,8 @@ const express = require("express");
 const User = require("../db/userModel");
 const mongoose = require("mongoose");
 const router = express.Router();
+const session = require("express-session");
+
 
 router.post("/", async (request, response) => {
   // POST not required by assignment; left empty
@@ -61,5 +63,43 @@ router.get("/:id", async (request, response) => {
       .json({ message: "Internal server error", error: error.message });
   }
 });
+
+
+router.post("/login", async (req, res) => {
+  const {login_name} = req.body;
+  console.log(req.body)
+  try {
+     const user = await User.findOne({ login_name });
+  if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
+    // res.status(200).json({ 
+    //   message: "Login successful" 
+    // });
+      req.session.user_id = user._id;
+      console.log(req.session.user_id)
+      res.status(200).json({
+      _id: user._id,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      login_name: user.login_name
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+});
+
+// router.post("/admin/logout",async(req,res)=>{
+//   // if(!req.session.user_id){
+//   //   return res.status(400).send({ message: "Not logged in" });
+//   // }
+//   req.session.destroy((err)=>{
+//     if(err){
+//       return res.status(500).send({ message: "Logout failed" });
+//     }
+//     res.status(200).send({ message: "Logout successful" });
+//   })
+// })
+
 
 module.exports = router;
